@@ -51,11 +51,11 @@ namespace оопауд {
 
 					this->dataGridView1->Rows->Add(t, d);
 
-					if (Convert::ToInt32(year) > DateTime::Today.Year)
+					if (Convert::ToInt32(year) < DateTime::Today.Year)
 						this->dataGridView1->Rows[count]->DefaultCellStyle->BackColor = Color::Red;
-					else if (Convert::ToInt32(month) > DateTime::Today.Month)
+					else if (Convert::ToInt32(month) < DateTime::Today.Month && Convert::ToInt32(year) == DateTime::Today.Year)
 						this->dataGridView1->Rows[count]->DefaultCellStyle->BackColor = Color::Red;
-					else if (Convert::ToInt32(day) > DateTime::Today.Day)
+					else if (Convert::ToInt32(day) < DateTime::Today.Day && Convert::ToInt32(year) == DateTime::Today.Year && Convert::ToInt32(month) == DateTime::Today.Month)
 						this->dataGridView1->Rows[count]->DefaultCellStyle->BackColor = Color::Red;
 
 					if (Convert::ToInt32(completed) == 1)
@@ -99,7 +99,7 @@ namespace оопауд {
 	private: System::Windows::Forms::TextBox^ textBox_task;
 	private: System::Windows::Forms::TextBox^ textBox_date;
 	private: System::Windows::Forms::Button^ button3;
-	private: System::Windows::Forms::Button^ button4;
+
 
 
 
@@ -128,7 +128,6 @@ namespace оопауд {
 			this->textBox_task = (gcnew System::Windows::Forms::TextBox());
 			this->textBox_date = (gcnew System::Windows::Forms::TextBox());
 			this->button3 = (gcnew System::Windows::Forms::Button());
-			this->button4 = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dataGridView1))->BeginInit();
 			this->SuspendLayout();
 			// 
@@ -214,22 +213,11 @@ namespace оопауд {
 			this->button3->UseVisualStyleBackColor = true;
 			this->button3->Click += gcnew System::EventHandler(this, &MyForm::button3_Click);
 			// 
-			// button4
-			// 
-			this->button4->Location = System::Drawing::Point(661, 154);
-			this->button4->Name = L"button4";
-			this->button4->Size = System::Drawing::Size(287, 23);
-			this->button4->TabIndex = 7;
-			this->button4->Text = L"Сохранить";
-			this->button4->UseVisualStyleBackColor = true;
-			this->button4->Click += gcnew System::EventHandler(this, &MyForm::button4_Click);
-			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(1064, 551);
-			this->Controls->Add(this->button4);
 			this->Controls->Add(this->button3);
 			this->Controls->Add(this->textBox_date);
 			this->Controls->Add(this->textBox_task);
@@ -254,7 +242,20 @@ namespace оопауд {
 			if (String::IsNullOrEmpty(this->textBox_date->Text) || String::IsNullOrEmpty(this->textBox_task->Text))
 				MessageBox::Show("Заполните поля", "Ошибка");
 			else
+			{
+				String^ day = "" + this->textBox_date->Text[0] + this->textBox_date->Text[1];
+				String^ month = "" + this->textBox_date->Text[3] + this->textBox_date->Text[4];
+				String^ year = "" + this->textBox_date->Text[6] + this->textBox_date->Text[7] + this->textBox_date->Text[8] + this->textBox_date->Text[9];
+
 				this->dataGridView1->Rows->Add(this->textBox_task->Text, this->textBox_date->Text);
+				if (Convert::ToInt32(year) < DateTime::Today.Year)
+					this->dataGridView1->Rows[this->dataGridView1->Rows->Count - 2]->DefaultCellStyle->BackColor = Color::Red;
+				else if (Convert::ToInt32(month) < DateTime::Today.Month && Convert::ToInt32(year) == DateTime::Today.Year)
+					this->dataGridView1->Rows[this->dataGridView1->Rows->Count - 2]->DefaultCellStyle->BackColor = Color::Red;
+				else if (Convert::ToInt32(day) < DateTime::Today.Day && Convert::ToInt32(year) == DateTime::Today.Year && Convert::ToInt32(month) == DateTime::Today.Month)
+					this->dataGridView1->Rows[this->dataGridView1->Rows->Count - 2]->DefaultCellStyle->BackColor = Color::Red;
+
+			}
 		}
 
 		private: System::Void button3_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -280,7 +281,7 @@ namespace оопауд {
 
 			  
 private: System::Void MyForm_FormClosing(System::Object^ sender, System::Windows::Forms::FormClosingEventArgs^ e) {
-	String^ fileName = "tasks1.txt";
+	String^ fileName = "tasks.txt";
 	StreamWriter^ dout = gcnew StreamWriter(fileName);
 	for (int i = 0; i < this->dataGridView1->Rows->Count; i++) {
 		dout->WriteLine(this->dataGridView1->Rows[i]->Cells[0]->Value);
